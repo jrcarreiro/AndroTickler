@@ -1,30 +1,41 @@
-apply plugin: 'java'
-apply plugin: 'eclipse'
+apply plugin:'java'
+apply plugin:'eclipse'
 
 repositories {
-    jcenter()
  mavenCentral()
 }
 
 
 dependencies {
 
-    compile 'org.slf4j:slf4j-api:1.7.13'
-    compile files('libs/jars/commons-cli-1.3.jar')
-    compile files('libs/jars/commons-io-2.4.jar')
-    compile files('libs/jars/apktool_2.2.2.jar')
-    compile files('libs/jars/commons-codec-1.10.jar')
-    compile files('libs/jars/jd-core-java-1.2.jar')
-    compile files('libs/jars/json-simple-1.1.1.jar')
-    runtime files('libs/jars/commons-cli-1.3.jar')
-    runtime fileTree(dir: 'libs/jars', include: '*.jar')
+    implementation files('slf4j-api-2.0.12.jar')
+    implementation files('libs/jars/commons-cli-1.3.jar')
+    implementation files('libs/jars/commons-io-2.4.jar')
+    implementation files('libs/jars/apktool_2.2.2.jar')
+    implementation files('libs/jars/commons-codec-1.10.jar')
+    implementation files('libs/jars/jd-core-java-1.2.jar')
+    implementation files('libs/jars/json-simple-1.1.1.jar')
+    //runtime files('libs/jars/commons-cli-1.3.jar')
+    runtimeOnly files('libs/jars/commons-cli-1.3.jar')
+    runtimeOnly fileTree(dir: 'libs/jars', include: '*.jar')
+
+    configurations {
+        customConfig.extendsFrom implementation
+
+        task copyLibs(type: Copy) {
+            from configurations.customConfig
+            into "$project.rootDir/reports/libs/"
+        }
+    }
+    build.dependsOn copyLibs
 }
 
+
 jar {
-	baseName='AndroTickler'
+    archiveBaseName='AndroTickler'
   	manifest {
     		attributes(
-      			'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+      			'Class-Path': configurations.customConfig.collect { it.getName() }.join(' '),
       			'Main-Class': 'cliGui.TicklerCLI'
     		)
   	}
